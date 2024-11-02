@@ -58,11 +58,18 @@ CircularBuffer::CircularBuffer(int capacity, const value_type &elem)
 
 value_type &CircularBuffer::operator[](int i)
 {
+    if(capacity_b == 0 || current_size == 0){
+        throw std::invalid_argument("Buffer is empty");
+    }
+
     return buffer[(front_index + i) % capacity_b]; // индекс по модулю ёмкости(capacity)
 }
 
 const value_type &CircularBuffer::operator[](int i) const
 {
+    if(capacity_b == 0 || current_size == 0){
+        throw std::invalid_argument("Buffer is empty");
+    }
     return buffer[(front_index + i) % capacity_b]; // индекс по модулю ёмкости(capacity)
 }
 
@@ -92,7 +99,7 @@ value_type &CircularBuffer::front() // ссылка на первый элеме
 
 value_type &CircularBuffer::back() // ссылка на последний элемент
 {
-    return buffer[back_index];
+    return buffer[(back_index - 1 + capacity_b) % capacity_b];
 }
 
 const value_type &CircularBuffer::front() const
@@ -102,7 +109,7 @@ const value_type &CircularBuffer::front() const
 
 const value_type &CircularBuffer::back() const
 {
-    return buffer[back_index];
+    return buffer[(back_index - 1 + capacity_b) % capacity_b];
 }
 
 value_type *CircularBuffer::linearize()
@@ -117,7 +124,7 @@ value_type *CircularBuffer::linearize()
         delete[] buffer;
         buffer = new_buffer;
         front_index = 0;
-        back_index = current_size - 1;
+        back_index = current_size % capacity_b;
     }
     return buffer;
 }
@@ -140,7 +147,7 @@ void CircularBuffer::rotate(int new_begin)
     {
         for (int i = 0; i < new_begin; i++)
         {
-            buffer[(back_index + i + 1) % capacity_b] = buffer[(front_index + i) % capacity_b];
+            buffer[(back_index + i) % capacity_b] = buffer[(front_index + i) % capacity_b];
         }
     }
     front_index = (front_index + new_begin) % capacity_b;
@@ -179,6 +186,11 @@ void CircularBuffer::set_capacity(int new_capacity)
         throw std::invalid_argument("Capacity must be positive");
     }
 
+    if (new_capacity < current_size)
+    {
+        throw std::invalid_argument("New capacity must be greater than current size");
+    }
+
     value_type *new_buffer = new value_type[new_capacity];
 
     for (int i = 0; i < current_size; i++)
@@ -191,14 +203,14 @@ void CircularBuffer::set_capacity(int new_capacity)
 
     capacity_b = new_capacity;
     front_index = 0;
-    back_index = current_size - 1;
+    back_index = current_size % capacity_b;
 }
 
-void CircularBuffer::resize(int new_size, const value_type &item = value_type())
+void CircularBuffer::resize(int new_size, const value_type &item)
 {
-    if (new_size < 0)
+    if (new_size < 0 || new_size > capacity_b)
     {
-        throw std::invalid_argument("New size must be positive");
+        throw std::invalid_argument("New size must be between 0 and capacity");
     }
 
     if (new_size == 0)
@@ -207,36 +219,22 @@ void CircularBuffer::resize(int new_size, const value_type &item = value_type())
         return;
     }
 
-    if (new_size < current_size)
-    {
-        current_size = new_size;
-        return;
-    }
-
-    if (new_size > capacity_b)
-    {
-        set_capacity(new_size);
-    }
-
     if (new_size > current_size)
     {
-        for (int i = 1; i <= (new_size - current_size); i++)
+        for (int i = 0; i < (new_size - current_size); i++)
         {
             buffer[(back_index + i) % capacity_b] = item;
         }
     }
     current_size = new_size;
+    back_index = (back_index - (current_size - new_size) + capacity_b) % capacity_b;
 }
 
 CircularBuffer &CircularBuffer::operator=(const CircularBuffer &cb)
 {
     if (this == &cb){
         return (*this);
-        }
-
-    if ((*this) != cb){
-        delete[] buffer;
-        }
+    }
     capacity_b = cb.capacity_b;
     current_size = cb.current_size;
     front_index = cb.front_index;
@@ -246,6 +244,8 @@ CircularBuffer &CircularBuffer::operator=(const CircularBuffer &cb)
     {
         buffer[(front_index + i) % capacity_b] = cb.buffer[(front_index + i) % capacity_b];
     }
+    delete[] this->buffer;
+    this->buffer = buffer;
     return (*this);
 }
 
@@ -262,31 +262,34 @@ void CircularBuffer::swap(CircularBuffer &cb)
     std::swap(back_index, cb.back_index);
 }
 
-void CircularBuffer::push_back(const value_type &item = value_type())
+void CircularBuffer::push_back(const value_type &item)
 {
+    if (capacity_b == 0){
+        throw std::invalid_argument("Buffer HAS NO CAPACITY");
+    }
+    buffer[back_index] = item;
     back_index = (back_index + 1) % capacity_b;
-    buffer[back_index] = item; // buffer[back_index + 1]
-    if (front_index == back_index)
-    {
+    if(!full()){
+        current_size++;
+        }
+    else{
         front_index = (front_index + 1) % capacity_b;
     }
-    else
-    {
-        current_size++;
-    }
 }
-void CircularBuffer::push_front(const value_type &item = value_type())
+void CircularBuffer::push_front(const value_type &item)
 {
-    front_index = (front_index - 1 + capacity_b) % capacity_b;
-    buffer[front_index] = item;
-    if (front_index == back_index)
-    {
+    if (capacity_b == 0){
+        throw std::invalid_argument("Buffer HAS NO CAPACITY");
+    }
+    if(full()){
         back_index = (back_index - 1 + capacity_b) % capacity_b;
     }
-    else
-    {
+    else{
         current_size++;
     }
+    front_index = (front_index - 1 + capacity_b) % capacity_b;
+    buffer[front_index] = item;
+
 }
 void CircularBuffer::pop_back()
 {
@@ -300,39 +303,37 @@ void CircularBuffer::pop_front()
 }
 
 
-void CircularBuffer::insert(int pos, const value_type &item = value_type())
+void CircularBuffer::insert(int pos, const value_type &item)
 {
-    if (pos < 0 || pos > current_size)
+    if (pos < 0 || pos > current_size)   // можно поставить элемент в начало или в конец
     {
-        throw std::out_of_range("Index out of range");
+        throw std::out_of_range("Index out of range!");
     }
 
-    if (current_size == capacity_b)
+    if (full())
     {
-        throw std::overflow_error("Buffer is full");
+        throw std::overflow_error("Buffer is full");   // попытка вставить в полный буфер(но можно реализовать с перезаписью буффера)
     }
 
-    if (current_size < capacity_b)
-    {
-        for (int i = current_size; i > pos; i--)
+    for (int i = current_size; i > pos; i--)
         {
             buffer[(front_index + i) % capacity_b] = buffer[(front_index + i - 1) % capacity_b];
         }
-    }
+
     buffer[(front_index + pos) % capacity_b] = item;
-    current_size++;
     back_index = (back_index + 1) % capacity_b;
+    current_size++;
 }
 // Удаляет элементы из буфера в интервале [first, last).
 void CircularBuffer::erase(int first, int last)
 {
-    if (first < 0 || first > last || last > current_size)
+    if (first < 0 || first >= last || last > current_size)
     {
         throw std::out_of_range("Index out of range");
     }
     int index_for_shift = (front_index + last) % capacity_b;
 
-    for (int i = first; index_for_shift != (back_index + 1) % capacity_b; i++)
+    for (int i = first; index_for_shift != back_index; i++)
     {
         buffer[i] = buffer[index_for_shift];
         index_for_shift = (index_for_shift + 1) % capacity_b;
@@ -346,7 +347,7 @@ void CircularBuffer::erase(int first, int last)
     }
     else
     {
-        back_index = (front_index + current_size - 1) % capacity_b;
+        back_index = (front_index + current_size) % capacity_b;
     }
 }
 void CircularBuffer::clear()

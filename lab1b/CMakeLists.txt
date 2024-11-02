@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
+project(MyProject)
+
+# Найти Google Test
+find_package(GTest REQUIRED)
 
 set(SOURCES
   circular_buf.cpp
