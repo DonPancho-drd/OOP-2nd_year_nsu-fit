@@ -32,7 +32,7 @@ CircularBuffer::CircularBuffer(const CircularBuffer &cb)
 
 // Конструирует буфер заданной ёмкости
 
-CircularBuffer::CircularBuffer(int capacity)
+CircularBuffer::CircularBuffer(int capacity)    //explicit
 {
     buffer = new value_type[capacity];
     current_size = 0;
@@ -293,11 +293,17 @@ void CircularBuffer::push_front(const value_type &item)
 }
 void CircularBuffer::pop_back()
 {
+    if(empty()){
+        throw std::invalid_argument("Buffer is empty");
+    }
     back_index = (back_index - 1 + capacity_b) % capacity_b;
     current_size--;
 }
 void CircularBuffer::pop_front()
 {
+    if(empty()){
+        throw std::invalid_argument("Buffer is empty");
+        }
     front_index = (front_index + 1) % capacity_b;
     current_size--;
 }
@@ -312,7 +318,7 @@ void CircularBuffer::insert(int pos, const value_type &item)
 
     if (full())
     {
-        throw std::overflow_error("Buffer is full");   // попытка вставить в полный буфер(но можно реализовать с перезаписью буффера)
+        throw std::overflow_error("Buffer is full");   // попытка вставить в полный буфер()
     }
 
     for (int i = current_size; i > pos; i--)

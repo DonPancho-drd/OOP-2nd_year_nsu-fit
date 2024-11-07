@@ -112,6 +112,7 @@ TEST(CircularBufferTest, IsLinearized) {
     cbuf.push_back('D');
     EXPECT_FALSE(cbuf.is_linearized());
 }
+
 TEST(CircularBufferTest, Rotate) {
     CircularBuffer cbuf(3);
     cbuf.push_back('A');
@@ -122,6 +123,11 @@ TEST(CircularBufferTest, Rotate) {
     EXPECT_EQ(cbuf[0], 'C');
     EXPECT_EQ(cbuf[1], 'A');
     EXPECT_EQ(cbuf[2], 'B');
+
+    cbuf.pop_front();   // проверка при size < capacity
+    cbuf.rotate(1);
+    EXPECT_EQ(cbuf[0], 'B');
+    EXPECT_EQ(cbuf[1], 'A');
 
     EXPECT_THROW(cbuf.rotate(3), std::out_of_range);
     EXPECT_THROW(cbuf.rotate(-1), std::out_of_range);
@@ -190,7 +196,7 @@ TEST(CircularBufferTest, Resize) {
     EXPECT_EQ(cbuf[0], 'A');
     EXPECT_EQ(cbuf[2], 'A');
 
-    cbuf.resize(2, 'B');
+    cbuf.resize(2);
     EXPECT_EQ(cbuf.size(), 2);
     EXPECT_EQ(cbuf[0], 'A');
     EXPECT_EQ(cbuf[1], 'A');
@@ -298,6 +304,12 @@ TEST(CircularBufferTest, PopBack) {
     EXPECT_EQ(cbuf.back(), 'A');
 }
 
+TEST(CircularBufferTest, PophBackFrontEmpty) {
+    CircularBuffer cbuf(0);
+    EXPECT_THROW(cbuf.pop_back(), std::invalid_argument);
+    EXPECT_THROW(cbuf.pop_front(), std::invalid_argument);
+}
+
 TEST(CircularBufferTest, PopFront) {
     CircularBuffer cbuf(3);
     cbuf.push_back('A');
@@ -344,7 +356,9 @@ TEST(CircularBufferTest, Erase) {
     EXPECT_EQ(cbuf[1], 'C');
 
     EXPECT_THROW(cbuf.erase(-1, 1), std::out_of_range);
+    EXPECT_THROW(cbuf.erase(1, 0), std::out_of_range);
     EXPECT_THROW(cbuf.erase(3, 1), std::out_of_range);
+
 }
 
 TEST(CircularBufferTest, Clear) {
