@@ -25,6 +25,6 @@ struct Arguments
     std::string matrix_file;   // вшита в game.h
 };
 
-static std::unique_ptr<Arguments> parse_arguments(int argc, char *argv[]);
+std::unique_ptr<Arguments> parse_arguments(int argc, char *argv[]);
 
 std::array<std::array<int, 3>, 8> load_matrix(const std::string &filename);

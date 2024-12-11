@@ -4,7 +4,7 @@
 
 
 
-static std::unique_ptr<Arguments> parse_arguments(int argc, char *argv[])
+std::unique_ptr<Arguments> parse_arguments(int argc, char *argv[])
 {
     auto args = std::make_unique<Arguments>();
     if (argc < 4)

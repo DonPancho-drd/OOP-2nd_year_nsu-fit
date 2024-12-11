@@ -5,11 +5,12 @@
 #include <fstream>
 #include <memory>
 #include <stdexcept>
+#include <array>
 #include "strategy_factory.h"
 #include "game.h"
 #include "args_parser.h"
 
-void playDetailed(std::vector<std::shared_ptr<Strategy>> strategies, std::array<std::array<int, 3>, 8> matrix, std::unique_ptr<Arguments> &args)
+std::tuple<int, int, int> playDetailed(const std::array<std::array<int, 3>, 8> &matrix, const std::vector<std::shared_ptr<Strategy>> &strategies, const std::unique_ptr<Arguments> &args)
 {
     auto a = strategies[0];
     auto b = strategies[1];
@@ -36,23 +37,25 @@ void playDetailed(std::vector<std::shared_ptr<Strategy>> strategies, std::array<
         // Выход по кнопке 'q'
         if (getchar() == 'q')
         {
+            getchar();
             break;
         }
     }
 
     game.printResults();
     std::cout << std::endl;
+
+    return game.getScores();
 }
 
 int main(int argc, char **argv)
 {
     auto args = parse_arguments(argc, argv);
 
-    std::array<std::array<int, 3>, 8> matrix = {0}; // matrix
+    std::array<std::array<int, 3>, 8> matrix = {}; // Инициализация массива нулями
 
-    if (!(args->matrix_file.empty()))
+    if (!args->matrix_file.empty())
     {
-
         matrix = load_matrix(args->matrix_file);
     }
 
@@ -66,6 +69,7 @@ int main(int argc, char **argv)
     if (args->mode == GameMode::NoDetailed)
     {
         PrisonerDillema game(strategies[0], strategies[1], strategies[2], matrix);
+
         for (int i = 0; i < args->steps; i++)
         {
             game.playRound();
@@ -74,21 +78,55 @@ int main(int argc, char **argv)
         return EXIT_SUCCESS;
     }
 
-    if (GameMode::Detailed == args->mode)
+    if (args->mode == GameMode::Detailed)
     {
-        playDetailed(strategies, matrix, args);
+        playDetailed(matrix, strategies, args);
     }
 
-    if(GameMode::Tournament == args->mode){
+    if (args->mode == GameMode::Tournament)
+    {
+        std::tuple<int, int, int> res;
         int player_cnt = strategies.size();
-        for(int i = 0; i < player_cnt; i++){
-            for(int j = i; j < player_cnt; j++){
-                for(int k = j; k < player_cnt; k++){
+        std::vector<int> tourney_scores(player_cnt, 0);
 
+        for (int i = 0; i < player_cnt; i++)
+        {
+            for (int j = i + 1; j < player_cnt; j++)
+            {
+                for (int k = j + 1; k < player_cnt; k++)
+                {
+                    res = playDetailed(matrix, {strategies[i], strategies[j], strategies[k]}, args);
+                    tourney_scores[i] += std::get<0>(res);
+                    tourney_scores[j] += std::get<1>(res);
+                    tourney_scores[k] += std::get<2>(res);
+
+                    while (true)
+                    {
+                        char input = getchar();
+                        if (input == 'c')
+                        {
+                            getchar();
+                            break; // Продолжить к следующему матчу
+                        }
+                        else if (input == 'q')
+                        {
+                            std::cout << "Game over by user" << std::endl;
+                            return EXIT_SUCCESS;
+                        }
+                    }
                 }
             }
         }
 
+        std::cout << "-----------------ღ(◕‿◕｡)ღ ✧(✿❛‿❛✿)✧ ★(｡♥‿♥｡)★-----------------" << std::endl;
+
+        for (int i = 0; i < player_cnt; i++)
+        {
+            std::cout << strategies[i]->getStrategyName() << " score: " << tourney_scores[i] << std::endl;
+        }
+
+        std::cout << "--------------------(¬‿¬)  (｡♥‿♥｡)  (ノ°∀°)ノ---------------------" << std::endl;
+        std::cout << std::endl;
     }
 
     return EXIT_SUCCESS;

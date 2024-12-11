@@ -5,11 +5,11 @@ project(MyProject)
 find_package(GTest REQUIRED)
 
 set(SOURCES
-  "src/game.cpp" "src/strategy.cpp" "src/strategy_factory.cpp" "src/main.cpp"
+  "src/game.cpp" "src/strategy.cpp" "src/strategy_factory.cpp" "src/main.cpp" "src/args_parser.cpp"
 )
 
 set(HEADERS
-  "include/game.h" "include/strategy.h" "include/strategy_factory.h"
+  "include/game.h" "include/strategy.h" "include/strategy_factory.h" "include/args_parser.h"
 )
 
 add_executable(game ${SOURCES} ${HEADERS})
