@@ -1,0 +1,5 @@
+if(EXISTS "/home/darya/OOP-2nd_year_nsu-fit/lab3/build/test[1]_tests.cmake")
+  include("/home/darya/OOP-2nd_year_nsu-fit/lab3/build/test[1]_tests.cmake")
+else()
+  add_test(test_NOT_BUILT test_NOT_BUILT)
+endif()

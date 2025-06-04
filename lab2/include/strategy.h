@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 #include <memory>
 
 enum class Move{COOPERATE, DEFECT};

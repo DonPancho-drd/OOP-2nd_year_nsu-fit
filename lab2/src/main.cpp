@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
     std::vector<std::shared_ptr<Strategy>> strategies; // strategies
 
-    for (auto &name : args->players)
+    for (auto name : args->players)
     {
         strategies.push_back(StrategyFactory::createStrategy(name));
     }
@@ -85,6 +85,8 @@ int main(int argc, char **argv)
 
     if (args->mode == GameMode::Tournament)
     {
+        std::cout << "--------------------TOURNAMENT--------------------" << std::endl;
+        std::cout << std::endl;
         std::tuple<int, int, int> res;
         int player_cnt = strategies.size();
         std::vector<int> tourney_scores(player_cnt, 0);
@@ -102,6 +104,7 @@ int main(int argc, char **argv)
 
                     while (true)
                     {
+                        std::cout << "Press 'c' to continue or 'q' to quit" << std::endl;
                         char input = getchar();
                         if (input == 'c')
                         {

@@ -41,48 +41,18 @@ std::tuple<Move, Move, Move> PrisonerDillema::playRound()
     Move step3 = strategies[2]->makeMove();
 
     int row = 0;
-
-    if (step1 == Move::COOPERATE && step2 == Move::COOPERATE && step3 == Move::COOPERATE)
-    {
-        row = 0;
-    }
-    else if (step1 == Move::COOPERATE && step2 == Move::COOPERATE && step3 == Move::DEFECT)
-    {
-        row = 1;
-    }
-    else if (step1 == Move::COOPERATE && step2 == Move::DEFECT && step3 == Move::COOPERATE)
-    {
-        row = 2;
-    }
-    else if (step1 == Move::COOPERATE && step2 == Move::DEFECT && step3 == Move::DEFECT)
-    {
-        row = 3;
-    }
-    else if (step1 == Move::DEFECT && step2 == Move::COOPERATE && step3 == Move::COOPERATE)
-    {
-        row = 4;
-    }
-    else if (step1 == Move::DEFECT && step2 == Move::COOPERATE && step3 == Move::DEFECT)
-    {
-        row = 5;
-    }
-    else if (step1 == Move::DEFECT && step2 == Move::DEFECT && step3 == Move::COOPERATE)
-    {
-        row = 6;
-    }
-    else if (step1 == Move::DEFECT && step2 == Move::DEFECT && step3 == Move::DEFECT)
-    {
-        row = 7;
-    }
+    if (step1 == Move::DEFECT){row += 4;}        // D - 1   С - 0
+    if (step2 == Move::DEFECT){row += 2;}
+    if (step3 == Move::DEFECT){row += 1;}
 
     result_scores[0] += payoff_matrix[row][0];
     result_scores[1] += payoff_matrix[row][1];
     result_scores[2] += payoff_matrix[row][2];
     std::cout << "Scores: " << payoff_matrix[row][0] << " " << payoff_matrix[row][1] << " " << payoff_matrix[row][2] << std::endl;
 
-    strategies[0]->applyExperience(std::make_pair(step2, step3));
-    strategies[1]->applyExperience(std::make_pair(step3, step1));
-    strategies[2]->applyExperience(std::make_pair(step1, step2));
+    strategies[0]->applyExperience(std::make_pair(step3, step2));
+    strategies[1]->applyExperience(std::make_pair(step1, step3));
+    strategies[2]->applyExperience(std::make_pair(step2, step1));
 
     return std::make_tuple(step1, step2, step3);
 }

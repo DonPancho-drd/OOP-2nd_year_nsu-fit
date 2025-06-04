@@ -54,7 +54,9 @@ void GoByMajority::applyExperience(const std::pair<Move, Move> &decisions) {
 
 Move Random::makeMove(){
     srand(time(0));
-    return Move(rand() % 2 == 0 ? Move::COOPERATE : Move::DEFECT);
+    int x = rand();
+ //   std::cout << x << std::endl;
+    return Move(x % 2 == 1? Move::COOPERATE : Move::DEFECT);
 }
 
 void Random::applyExperience(const std::pair<Move, Move> &decisions) {}

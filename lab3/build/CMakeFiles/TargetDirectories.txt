@@ -1,0 +1,3 @@
+/home/darya/OOP-2nd_year_nsu-fit/lab3/build/CMakeFiles/sound_processor.dir
+/home/darya/OOP-2nd_year_nsu-fit/lab3/build/CMakeFiles/edit_cache.dir
+/home/darya/OOP-2nd_year_nsu-fit/lab3/build/CMakeFiles/rebuild_cache.dir

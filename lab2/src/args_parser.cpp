@@ -1,12 +1,13 @@
 
 #include "args_parser.h"
-
+#include <sstream>
 
 
 
 std::unique_ptr<Arguments> parse_arguments(int argc, char *argv[])
 {
     auto args = std::make_unique<Arguments>();
+
     if (argc < 4)
     {
         throw std::invalid_argument("Not enough arguments");
@@ -79,18 +80,43 @@ std::unique_ptr<Arguments> parse_arguments(int argc, char *argv[])
 std::array<std::array<int, 3>, 8> load_matrix(const std::string &filename)
 {
     std::array<std::array<int, 3>, 8> matrix{};
-    if (!filename.empty())
+    std::ifstream file(filename);
+
+    if (!file)
     {
-        std::ifstream file(filename);
-        if (!file)
-            throw std::runtime_error("Failed to open matrix file.");
-        for (auto &row : matrix)
+        throw std::runtime_error("Failed to open matrix file.");
+    }
+
+    int row = 0;
+    std::string line;
+    while (std::getline(file, line))
+    {
+        if (row >= 8)  // Проверяем, что не превышаем количество строк
         {
-            for (auto &elem : row)
+            throw std::runtime_error("Too many rows in matrix file.");
+        }
+
+        std::stringstream ss(line);
+        int col = 0;
+        while (ss >> matrix[row][col])
+        {
+            if (++col > 3)  // Проверяем, что не превышаем количество столбцов
             {
-                file >> elem;
+                throw std::runtime_error("Too many columns in matrix file.");
             }
         }
+
+        if (col != 3)  // Если в строке не 3 числа, выбрасываем исключение
+        {
+            throw std::runtime_error("Invalid number of columns in matrix file.");
+        }
+
+        row++;
+    }
+
+    if (row != 8)  // Проверяем, что в файле ровно 8 строк
+    {
+        throw std::runtime_error("Invalid number of rows in matrix file.");
     }
 
     return matrix;

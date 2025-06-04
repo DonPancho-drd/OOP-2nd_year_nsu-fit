@@ -8,5 +8,5 @@
 class StrategyFactory {
     StrategyFactory() = delete;
 public:
-    static std::shared_ptr<Strategy> createStrategy(std::string &strategy_name);
+    static std::shared_ptr<Strategy> createStrategy(std::string strategy_name);
 };

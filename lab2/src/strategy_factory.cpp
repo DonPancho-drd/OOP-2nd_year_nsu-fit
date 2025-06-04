@@ -3,7 +3,7 @@
 
 #include "strategy_factory.h"
 
-std::shared_ptr<Strategy> StrategyFactory::createStrategy(std::string &strategy_name)
+std::shared_ptr<Strategy> StrategyFactory::createStrategy(std::string strategy_name)
 {
     if (strategy_name == "poor_trusting_fool")
     {
