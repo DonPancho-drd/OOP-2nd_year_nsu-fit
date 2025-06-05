@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/test.dir/src/config_parser.cpp.o CMakeFiles/test.dir/src/converters.cpp.o CMakeFiles/test.dir/src/sound_processor.cpp.o CMakeFiles/test.dir/src/wav_file.cpp.o CMakeFiles/test.dir/test.cpp.o -o test  /usr/local/lib/libgtest.a 
