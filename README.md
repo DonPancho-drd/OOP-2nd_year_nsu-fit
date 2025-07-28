@@ -72,10 +72,3 @@ sound_processor -c <config.txt> <output.wav> <input1.wav> [<input2.wav> ...]
 - Экранирования значений
 - Обработки ошибок с указанием позиции в файле
 
-## Особенности реализации
-
-### Вывод кортежей
-Реализован оператор вывода для std::tuple:
-```cpp
-template<typename Ch, typename Tr, typename... Args>
-auto operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Args...> const& t)
