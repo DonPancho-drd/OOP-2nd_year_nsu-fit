@@ -59,6 +59,7 @@
 ## Использование
 ```bash
 sound_processor -c <config.txt> <output.wav> <input1.wav> [<input2.wav> ...]
+```
 
 -------------------------------------------------------------
 
